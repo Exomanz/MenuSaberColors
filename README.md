@@ -1,4 +1,6 @@
-# ConsistentSaberColors
+# MenuSaberColors
+ConsistentSaberColors but with a new name!
+
 A Quest mod that allowed for your menu pointers to be the same colors as your sabers has been ported to PC!
 
 ## Overview - What exactly does this mod do?

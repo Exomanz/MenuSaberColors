@@ -191,14 +191,12 @@ namespace MenuSaberColors
 				saberAColorAccessor(ref aprilFools) = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.5f, 1f), 1f, 1f));
 				saberBColorAccessor(ref aprilFools) = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.5f, 1f), 1f, 1f));
 
-				SetSaberGlowColor[] leftSideSabers = colorManager.leftSideSabers;
-				foreach (SetSaberGlowColor obj in leftSideSabers)
+				foreach (SetSaberGlowColor obj in colorManager.leftSideSabers)
 				{
 					obj.SetColors();
 				}
 
-				SetSaberGlowColor[] rightSideSabers = colorManager.rightSideSabers;
-				foreach (SetSaberGlowColor obj2 in rightSideSabers)
+				foreach (SetSaberGlowColor obj2 in colorManager.rightSideSabers)
 				{
 					obj2.SetColors();
 				}

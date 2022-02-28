@@ -8,7 +8,7 @@ namespace MenuSaberColors
 		public class HandleDidSelectCellWithIdx : IAffinity
 		{
 			[AffinityPostfix]
-			[AffinityPatch(typeof(ColorsOverrideSettingsPanelController), "HandleDropDownDidSelectCellWithIdx", AffinityMethodType.Normal, null, new Type[] { })]
+			[AffinityPatch(typeof(ColorsOverrideSettingsPanelController), "HandleDropDownDidSelectCellWithIdx", AffinityMethodType.Normal)]
 			internal void Postfix()
 			{
 				MenuSaberColorManager.Instance?.RefreshData();
@@ -18,7 +18,7 @@ namespace MenuSaberColors
 		public class HandleEditColorSchemeControllerDidFinish : IAffinity
 		{
 			[AffinityPostfix]
-			[AffinityPatch(typeof(ColorsOverrideSettingsPanelController), "HandleEditColorSchemeControllerDidFinish", AffinityMethodType.Normal, null, new Type[] { })]
+			[AffinityPatch(typeof(ColorsOverrideSettingsPanelController), "HandleEditColorSchemeControllerDidFinish", AffinityMethodType.Normal)]
 			internal void Postfix()
 			{
 				MenuSaberColorManager.Instance?.RefreshData();
@@ -28,7 +28,7 @@ namespace MenuSaberColors
 		public class ToggleValueChanged : IAffinity
 		{
 			[AffinityPostfix]
-			[AffinityPatch(typeof(ColorsOverrideSettingsPanelController), "HandleOverrideColorsToggleValueChanged", AffinityMethodType.Normal, null, new Type[] { })]
+			[AffinityPatch(typeof(ColorsOverrideSettingsPanelController), "HandleOverrideColorsToggleValueChanged", AffinityMethodType.Normal)]
 			internal void Postfix()
 			{
 				MenuSaberColorManager.Instance?.RefreshData();

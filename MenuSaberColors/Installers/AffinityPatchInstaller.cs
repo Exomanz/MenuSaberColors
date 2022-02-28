@@ -6,9 +6,9 @@ namespace MenuSaberColors.Installers
 	{
 		public override void InstallBindings()
 		{
-			base.Container.BindInterfacesTo<Patches.HandleDidSelectCellWithIdx>().AsSingle();
-			base.Container.BindInterfacesTo<Patches.HandleEditColorSchemeControllerDidFinish>().AsSingle();
-			base.Container.BindInterfacesTo<Patches.ToggleValueChanged>().AsSingle();
+			Container.BindInterfacesTo<Patches.HandleDidSelectCellWithIdx>().AsSingle();
+			Container.BindInterfacesTo<Patches.HandleEditColorSchemeControllerDidFinish>().AsSingle();
+			Container.BindInterfacesTo<Patches.ToggleValueChanged>().AsSingle();
 		}
 	}
 }

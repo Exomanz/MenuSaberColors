@@ -24,15 +24,6 @@ namespace MenuSaberColors
 
 		public static MenuSaberColorManager Instance { get; private set; }
 
-		private bool isAprilFools
-		{
-			get
-			{
-				DateTime dateTime = DateTime.UtcNow;
-				return Environment.GetCommandLineArgs().Any(s => s.ToLower() == "--force_msc_fools" || (dateTime.Month == 4 && dateTime.Day == 1));
-			}
-		}
-
 		public void Start()
 		{
 			Instance = this;
@@ -52,7 +43,7 @@ namespace MenuSaberColors
 			colorSchemeDictionary = dictionaryAccessor(ref playerColorSchemeSettings);
 			key = playerData.colorSchemesSettings.selectedColorSchemeId;
 
-			if (!isAprilFools)
+			if (!Plugin.isAprilFools)
 				UpdateSaberColors();
 		}
 

@@ -12,8 +12,8 @@ There is no config for this mod--it comes enabled by default, and if you want to
 ![Preview](https://github.com/im-henri/QonsistentSaberColors/blob/master/Animation.gif)
 
 ## Dependencies
-- BSIPA: v4.2.1+
-- SiraUtil v3.0.0+
+- BSIPA: v4.2.2+
+- SiraUtil v3.0.5+
 
 ## Roadpath
 - Realtime color updates when editing color schemes

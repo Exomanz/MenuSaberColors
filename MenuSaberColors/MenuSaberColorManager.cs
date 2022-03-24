@@ -44,7 +44,7 @@ namespace MenuSaberColors
 			}
             catch
             {
-				Logger.Logger.Critical("MenuSaberColorManager/dictionaryAccessor | NullReferenceException");
+				Logger.Logger.Debug("MenuSaberColorManager/dictionaryAccessor | Caught NullReferenceException");
 				Logger.Logger.Debug("Falling back to reflection");
 				colorSchemeDictionary = playerColorSchemesSettings.GetField<Dictionary<string, ColorScheme>, ColorSchemesSettings>("_colorSchemesDict");
             }

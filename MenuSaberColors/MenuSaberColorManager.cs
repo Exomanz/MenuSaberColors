@@ -1,7 +1,6 @@
-﻿using System;
+﻿using SiraUtil.Logging;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using IPA.Utilities;
 using UnityEngine;
 using VRUIControls;
@@ -15,10 +14,10 @@ namespace MenuSaberColors
 		public SetSaberGlowColor[] rightSideSabers;
 
 		[Inject] private readonly PlayerDataModel playerDataModel;
+		[Inject] private readonly SiraLog Logger;
 
-		private readonly FieldAccessor<ColorSchemesSettings, Dictionary<string, ColorScheme>>.Accessor dictionaryAccessor = FieldAccessor<ColorSchemesSettings, Dictionary<string, ColorScheme>>.GetAccessor("_colorSchemesDict");
-		private PlayerData playerData;
-		private ColorSchemesSettings playerColorSchemeSettings;
+		private static readonly FieldAccessor<ColorSchemesSettings, Dictionary<string, ColorScheme>>.Accessor dictionaryAccessor = FieldAccessor<ColorSchemesSettings, Dictionary<string, ColorScheme>>.GetAccessor("_colorSchemesDict");
+		private ColorSchemesSettings playerColorSchemesSettings;
 		private Dictionary<string, ColorScheme> colorSchemeDictionary;
 		private string key;
 
@@ -28,20 +27,29 @@ namespace MenuSaberColors
 		{
 			Instance = this;
 
-			VRController[] controllers = UnityEngine.Object.FindObjectsOfType<VRController>();
+			VRController[] controllers = FindObjectsOfType<VRController>();
 			leftSideSabers = controllers[1].GetComponentsInChildren<SetSaberGlowColor>();
 			rightSideSabers = controllers[0].GetComponentsInChildren<SetSaberGlowColor>();
 
-			playerData = playerDataModel.playerData;
-			playerColorSchemeSettings = playerData.colorSchemesSettings;
+			playerColorSchemesSettings = playerDataModel.playerData.colorSchemesSettings;
 
 			RefreshData();
 		}
 
 		public void RefreshData()
 		{
-			colorSchemeDictionary = dictionaryAccessor(ref playerColorSchemeSettings);
-			key = playerData.colorSchemesSettings.selectedColorSchemeId;
+            try
+			{
+				colorSchemeDictionary = dictionaryAccessor(ref playerColorSchemesSettings);
+			}
+            catch
+            {
+				Logger.Logger.Critical("MenuSaberColorManager/dictionaryAccessor | NullReferenceException");
+				Logger.Logger.Debug("Falling back to reflection");
+				colorSchemeDictionary = playerColorSchemesSettings.GetField<Dictionary<string, ColorScheme>, ColorSchemesSettings>("_colorSchemesDict");
+            }
+
+			key = playerColorSchemesSettings.selectedColorSchemeId;
 
 			if (!Plugin.isAprilFools)
 				UpdateSaberColors();
@@ -49,7 +57,7 @@ namespace MenuSaberColors
 
 		private void UpdateSaberColors()
 		{
-			ColorScheme colorScheme = !playerData.colorSchemesSettings.overrideDefaultColors ? colorSchemeDictionary["TheFirst"] : colorSchemeDictionary[key];
+			ColorScheme colorScheme = playerColorSchemesSettings.overrideDefaultColors ? colorSchemeDictionary[key] : colorSchemeDictionary["TheFirst"];
 
 			foreach (SetSaberGlowColor obj in leftSideSabers)
 			{
@@ -179,20 +187,22 @@ namespace MenuSaberColors
 		{
 			if (ready)
 			{
-				saberAColorAccessor(ref aprilFools) = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.5f, 1f), 1f, 1f));
-				saberBColorAccessor(ref aprilFools) = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.5f, 1f), 1f, 1f));
+				Color rainbow = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.5f, 1f), 1f, 1f));
+
+				saberAColorAccessor(ref aprilFools) = rainbow;
+				saberBColorAccessor(ref aprilFools) = rainbow;
+				pointerMaterial.color = rainbow;
 
 				foreach (SetSaberGlowColor obj in colorManager.leftSideSabers)
 				{
 					obj.SetColors();
 				}
 
-				foreach (SetSaberGlowColor obj2 in colorManager.rightSideSabers)
+				foreach (SetSaberGlowColor obj in colorManager.rightSideSabers)
 				{
-					obj2.SetColors();
+					obj.SetColors();
 				}
 
-				pointerMaterial.color = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.5f, 1f), 1f, 1f));
 			}
 		}
 	}

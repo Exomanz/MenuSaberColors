@@ -20,6 +20,7 @@ namespace MenuSaberColors
 
 		[Init] public Plugin(Logger logger, Zenjector zenjector)
 		{
+			zenjector.UseLogger(logger);
 			zenjector.Install<AffinityPatchInstaller>(Location.App);
 			zenjector.Install<CoreSaberColorManagerInstaller>(Location.Menu);
 		}

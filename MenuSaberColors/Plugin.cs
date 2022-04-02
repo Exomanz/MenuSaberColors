@@ -9,13 +9,17 @@ namespace MenuSaberColors
 	[Plugin(RuntimeOptions.SingleStartInit), NoEnableDisable]
 	public class Plugin
 	{
-		public static bool isAprilFools { get; private set; }
+		public static bool isAprilFools
+        {
+            get
+            {
+				DateTime time = DateTime.Now;
+				return time.Month == 4 && time.Day == 1;
+            }
+        }
 
 		[Init] public Plugin(Logger logger, Zenjector zenjector)
 		{
-			DateTime time = DateTime.UtcNow;
-			isAprilFools = time.Month == 4 && time.Day == 1;
-
 			zenjector.Install<AffinityPatchInstaller>(Location.App);
 			zenjector.Install<CoreSaberColorManagerInstaller>(Location.Menu);
 		}

@@ -28,8 +28,16 @@ namespace MenuSaberColors
 			Instance = this;
 
 			VRController[] controllers = FindObjectsOfType<VRController>();
-			leftSideSabers = controllers[1].GetComponentsInChildren<SetSaberGlowColor>();
-			rightSideSabers = controllers[0].GetComponentsInChildren<SetSaberGlowColor>();
+			if (controllers.Length < 2)
+            {
+				Logger.Logger.Debug("MenuSaberColorManager/VRController[] controllers | Caught IndexOutOfBoundsException");
+				Logger.Logger.Debug("Trying again...");
+				Start();
+				return;
+            }
+
+			leftSideSabers = controllers[1]?.GetComponentsInChildren<SetSaberGlowColor>();
+			rightSideSabers = controllers[0]?.GetComponentsInChildren<SetSaberGlowColor>();
 
 			playerColorSchemesSettings = playerDataModel.playerData.colorSchemesSettings;
 
@@ -45,7 +53,7 @@ namespace MenuSaberColors
             catch
             {
 				Logger.Logger.Debug("MenuSaberColorManager/dictionaryAccessor | Caught NullReferenceException");
-				Logger.Logger.Debug("Falling back to reflection");
+				Logger.Logger.Debug("Falling back to Reflection");
 				colorSchemeDictionary = playerColorSchemesSettings.GetField<Dictionary<string, ColorScheme>, ColorSchemesSettings>("_colorSchemesDict");
             }
 

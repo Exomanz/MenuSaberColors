@@ -27,15 +27,7 @@ namespace MenuSaberColors
 		{
 			Instance = this;
 
-			VRController[] controllers = FindObjectsOfType<VRController>();
-			if (controllers.Length < 2)
-			{
-				Logger.Logger.Debug("MenuSaberColorManager/VRController[] controllers | Caught IndexOutOfBoundsException");
-				Logger.Logger.Debug("Trying again...");
-				Start();
-				return;
-			}
-
+			VRController[] controllers = Resources.FindObjectsOfTypeAll<VRController>();
 			leftSideSabers = controllers[1]?.GetComponentsInChildren<SetSaberGlowColor>();
 			rightSideSabers = controllers[0]?.GetComponentsInChildren<SetSaberGlowColor>();
 

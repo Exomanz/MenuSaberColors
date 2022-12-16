@@ -11,13 +11,13 @@ namespace MenuSaberColors
 	public class Plugin
 	{
 		public static bool isAprilFools
-        {
-            get
-            {
+		{
+			get
+			{
 				DateTime time = DateTime.Now;
 				return time.Month == 4 && time.Day == 1;
-            }
-        }
+			}
+		}
 
 		[Init] public Plugin(IPALogger logger, Zenjector zenjector)
 		{

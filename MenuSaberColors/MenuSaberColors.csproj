@@ -119,7 +119,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Installers\AffinityPatchInstaller.cs" />
-    <Compile Include="Installers\CoreSaberColorManagerInstaller.cs" />
     <Compile Include="MenuSaberColorManager.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="Plugin.cs" />

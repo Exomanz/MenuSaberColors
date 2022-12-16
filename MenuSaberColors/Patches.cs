@@ -34,5 +34,17 @@ namespace MenuSaberColors
 				MenuSaberColorManager.Instance?.RefreshData();
 			}
 		}
+
+		public class HookMenuEnvironmentManager : IAffinity
+		{
+			public event Action menuEnvironmentDidChangeEvent;
+
+			[AffinityPostfix]
+			[AffinityPatch(typeof(MenuEnvironmentManager), "ShowEnvironmentType", AffinityMethodType.Normal)]
+			internal void Postfix(ref MenuEnvironmentManager.MenuEnvironmentType menuEnvironmentType)
+			{
+				menuEnvironmentDidChangeEvent.Invoke();
+			}
+		}
 	}
 }

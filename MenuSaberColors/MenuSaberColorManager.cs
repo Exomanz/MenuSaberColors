@@ -1,7 +1,10 @@
-﻿using SiraUtil.Logging;
+﻿using IPA.Utilities;
+using SiraUtil.Logging;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using IPA.Utilities;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using VRUIControls;
 using Zenject;
@@ -10,42 +13,50 @@ namespace MenuSaberColors
 {
 	public class MenuSaberColorManager : MonoBehaviour
 	{
-		public SetSaberGlowColor[] leftSideSabers;
-		public SetSaberGlowColor[] rightSideSabers;
-
 		[Inject] private readonly PlayerDataModel playerDataModel;
+		[Inject] private readonly Patches.HookMenuEnvironmentManager managerHook;
 		[Inject] private readonly SiraLog Logger;
 
-		private static readonly FieldAccessor<ColorSchemesSettings, Dictionary<string, ColorScheme>>.Accessor dictionaryAccessor = FieldAccessor<ColorSchemesSettings, Dictionary<string, ColorScheme>>.GetAccessor("_colorSchemesDict");
+        public static MenuSaberColorManager Instance { get; private set; }
+        public MethodInfo setColorsMethod = typeof(SetSaberGlowColor).GetMethod("SetColors");
+        public SetSaberGlowColor[] leftSideSabers = new SetSaberGlowColor[2];
+        public SetSaberGlowColor[] rightSideSabers = new SetSaberGlowColor[2];
+
+        private static readonly FieldAccessor<ColorSchemesSettings, Dictionary<string, ColorScheme>>.Accessor dictionaryAccessor = FieldAccessor<ColorSchemesSettings, Dictionary<string, ColorScheme>>.GetAccessor("_colorSchemesDict");
 		private ColorSchemesSettings playerColorSchemesSettings;
 		private Dictionary<string, ColorScheme> colorSchemeDictionary;
 		private string key;
 
-		public static MenuSaberColorManager Instance { get; private set; }
-
 		public void Start()
 		{
 			Instance = this;
+            playerColorSchemesSettings = playerDataModel.playerData.colorSchemesSettings;
 
-			VRController[] controllers = Resources.FindObjectsOfTypeAll<VRController>();
-			leftSideSabers = controllers[1]?.GetComponentsInChildren<SetSaberGlowColor>();
-			rightSideSabers = controllers[0]?.GetComponentsInChildren<SetSaberGlowColor>();
-
-			playerColorSchemesSettings = playerDataModel.playerData.colorSchemesSettings;
-
-			RefreshData();
+			managerHook.menuEnvironmentDidChangeEvent += this.RefreshData;
 		}
 
-		public void RefreshData()
+		public void GetSabers()
 		{
-			try
+			// Check 0th element.. if it's null, then so is the rest of the collection.
+			// Array.Length doesn't always work for me, so this is more reliable.
+			if (leftSideSabers?[0] != null && rightSideSabers?[0] != null) return;
+			
+            VRController[] controllers = Resources.FindObjectsOfTypeAll<VRController>().Where(go => go.transform.root.name == "Wrapper").ToArray();
+            leftSideSabers = controllers[1]?.GetComponentsInChildren<SetSaberGlowColor>();
+            rightSideSabers = controllers[0]?.GetComponentsInChildren<SetSaberGlowColor>();
+        }
+
+		public void RefreshData()
+        {
+            this.GetSabers();
+
+            try
 			{
 				colorSchemeDictionary = dictionaryAccessor(ref playerColorSchemesSettings);
 			}
 			catch
 			{
-				Logger.Logger.Debug("MenuSaberColorManager/dictionaryAccessor | Caught NullReferenceException");
-				Logger.Logger.Debug("Falling back to Reflection");
+				Logger.Logger.Debug("MenuSaberColorManager/dictionaryAccessor | Caught NullReferenceException\nAttempting reflection...");
 				colorSchemeDictionary = playerColorSchemesSettings.GetField<Dictionary<string, ColorScheme>, ColorSchemesSettings>("_colorSchemesDict");
 			}
 
@@ -61,17 +72,17 @@ namespace MenuSaberColors
 
 			foreach (SetSaberGlowColor obj in leftSideSabers)
 			{
-				ColorManager colorManager = obj.GetField<ColorManager, SetSaberGlowColor>("_colorManager");
-				colorManager.SetField("_colorScheme", colorScheme);
-				obj.SetColors();
+				ColorManager colorManager = obj?.GetField<ColorManager, SetSaberGlowColor>("_colorManager");
+				colorManager?.SetField("_colorScheme", colorScheme);
+				setColorsMethod?.Invoke(obj, null);
 			}
 
 			foreach (SetSaberGlowColor obj in rightSideSabers)
 			{
-				ColorManager colorManager = obj.GetField<ColorManager, SetSaberGlowColor>("_colorManager");
-				colorManager.SetField("_colorScheme", colorScheme);
-				obj.SetColors();
-			}
+				ColorManager colorManager = obj?.GetField<ColorManager, SetSaberGlowColor>("_colorManager");
+				colorManager?.SetField("_colorScheme", colorScheme);
+                setColorsMethod?.Invoke(obj, null);
+            }
 		}
 	}
 
@@ -194,15 +205,14 @@ namespace MenuSaberColors
 				pointerMaterial.color = rainbow;
 
 				foreach (SetSaberGlowColor obj in colorManager.leftSideSabers)
-				{
-					obj.SetColors();
-				}
+                {
+                    colorManager.setColorsMethod?.Invoke(obj, null);
+                }
 
 				foreach (SetSaberGlowColor obj in colorManager.rightSideSabers)
-				{
-					obj.SetColors();
-				}
-
+                {
+                    colorManager.setColorsMethod?.Invoke(obj, null);
+                }
 			}
 		}
 	}

@@ -1,8 +1,9 @@
 ﻿using System;
 using IPA;
-using IPA.Logging;
+using IPALogger = IPA.Logging.Logger;
 using MenuSaberColors.Installers;
 using SiraUtil.Zenject;
+using UnityEngine;
 
 namespace MenuSaberColors
 {
@@ -18,11 +19,26 @@ namespace MenuSaberColors
             }
         }
 
-		[Init] public Plugin(Logger logger, Zenjector zenjector)
+		[Init] public Plugin(IPALogger logger, Zenjector zenjector)
 		{
 			zenjector.UseLogger(logger);
 			zenjector.Install<AffinityPatchInstaller>(Location.App);
-			zenjector.Install<CoreSaberColorManagerInstaller>(Location.Menu);
+
+			// This installer runs twice... why?
+			// It also doesn't run after a soft restart... ugh
+			zenjector.Install<ColorManagerInstaller>(Container =>
+			{
+				GameObject saberColorManagerGO;
+				bool doesObjectExist = GameObject.Find("MenuSaberColorManager") != null;
+
+				if (doesObjectExist) return;
+				else saberColorManagerGO = new GameObject("MenuSaberColorManager");
+
+				Container.Bind<MenuSaberColorManager>().FromNewComponentOn(saberColorManagerGO).AsSingle().NonLazy();
+
+				if (Plugin.isAprilFools)
+					Container.Bind<AprilFools>().FromNewComponentOn(saberColorManagerGO).AsSingle().NonLazy();
+			});
 		}
 	}
 }

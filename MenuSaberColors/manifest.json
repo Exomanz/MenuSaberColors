@@ -3,7 +3,7 @@
   "id": "MenuSaberColors",
   "name": "MenuSaberColors",
   "author": "Exomanz",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A PC Port of henri's QonsistentSaberColors, which allows for your menu pointers to be the same color as your selected color scheme!",
   "gameVersion": "1.27.0",
   "dependsOn": {

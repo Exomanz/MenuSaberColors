@@ -55,9 +55,9 @@ namespace MenuSaberColors
 			{
 				colorSchemeDictionary = dictionaryAccessor(ref playerColorSchemesSettings);
 			}
-			catch (NullReferenceException ex)
+			catch
 			{
-				Logger.Logger.Debug("MenuSaberColorManager/dictionaryAccessor | Caught NullReferenceException\nAttempting reflection...");
+				Logger.Logger.Debug("MenuSaberColorManager/dictionaryAccessor - Caught NRE");
 				colorSchemeDictionary = playerColorSchemesSettings.GetField<Dictionary<string, ColorScheme>, ColorSchemesSettings>("_colorSchemesDict");
 			}
 

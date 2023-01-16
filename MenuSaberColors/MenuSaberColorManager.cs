@@ -40,21 +40,22 @@ namespace MenuSaberColors
 			// Check 0th element.. if it's null, then so is the rest of the collection.
 			// Array.Length doesn't always work for me, so this is more reliable.
 			if (leftSideSabers?[0] != null && rightSideSabers?[0] != null) return;
-			
-			VRController[] controllers = Resources.FindObjectsOfTypeAll<VRController>().Where(go => go.transform.root.name == "Wrapper").ToArray();
-			leftSideSabers = controllers[1]?.GetComponentsInChildren<SetSaberGlowColor>();
-			rightSideSabers = controllers[0]?.GetComponentsInChildren<SetSaberGlowColor>();
-		}
 
-		public void RefreshData()
+            VRController[] controllers = Resources.FindObjectsOfTypeAll<VRController>()?.Where(go => go.transform.root.name == "Wrapper")?.ToArray();
+            leftSideSabers = controllers[1]?.GetComponentsInChildren<SetSaberGlowColor>();
+            rightSideSabers = controllers[0]?.GetComponentsInChildren<SetSaberGlowColor>();
+        }
+
+		public void RefreshData(MenuEnvironmentManager.MenuEnvironmentType menuEnvironmentType)
 		{
-			this.GetSabers();
+			if (menuEnvironmentType != MenuEnvironmentManager.MenuEnvironmentType.None)
+                this.GetSabers();
 
 			try
 			{
 				colorSchemeDictionary = dictionaryAccessor(ref playerColorSchemesSettings);
 			}
-			catch
+			catch (NullReferenceException ex)
 			{
 				Logger.Logger.Debug("MenuSaberColorManager/dictionaryAccessor | Caught NullReferenceException\nAttempting reflection...");
 				colorSchemeDictionary = playerColorSchemesSettings.GetField<Dictionary<string, ColorScheme>, ColorSchemesSettings>("_colorSchemesDict");

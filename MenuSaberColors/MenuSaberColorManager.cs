@@ -1,5 +1,6 @@
 ﻿using IPA.Utilities;
 using SiraUtil.Logging;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,63 +13,54 @@ namespace MenuSaberColors
 {
     public class MenuSaberColorManager : MonoBehaviour
     {
-        [Inject] private readonly PlayerDataModel playerDataModel;
-        [Inject] private readonly Patches.HookMenuEnvironmentManager managerHook;
         [Inject] private readonly SiraLog Logger;
 
-        public static MenuSaberColorManager Instance { get; private set; }
         public MethodInfo setColorsMethod = typeof(SetSaberGlowColor).GetMethod("SetColors");
-        public SetSaberGlowColor[] leftSideSabers = new SetSaberGlowColor[2];
-        public SetSaberGlowColor[] rightSideSabers = new SetSaberGlowColor[2];
+        public List<SetSaberGlowColor> leftSideSabers = new List<SetSaberGlowColor>();
+        public List<SetSaberGlowColor> rightSideSabers = new List<SetSaberGlowColor>();
 
-        private static readonly FieldAccessor<ColorSchemesSettings, Dictionary<string, ColorScheme>>.Accessor dictionaryAccessor = FieldAccessor<ColorSchemesSettings, Dictionary<string, ColorScheme>>.GetAccessor("_colorSchemesDict");
         private ColorSchemesSettings playerColorSchemesSettings;
-        private Dictionary<string, ColorScheme> colorSchemeDictionary;
-        private string key;
 
-        public void Start()
+        [Inject]
+        internal void Construct(PlayerDataModel dataModel)
         {
-            Instance = this;
-            playerColorSchemesSettings = playerDataModel.playerData.colorSchemesSettings;
-
-            managerHook.menuEnvironmentDidChangeEvent += this.RefreshData;
-        }
-
-        public void GetSabers()
-        {
-            // Check 0th element.. if it's null, then so is the rest of the collection.
-            // Array.Length doesn't always work for me, so this is more reliable.
-            if (leftSideSabers?[0] != null && rightSideSabers?[0] != null) return;
-
-            VRController[] controllers = Resources.FindObjectsOfTypeAll<VRController>()?.Where(go => go.transform.root.name == "Wrapper")?.ToArray();
-            leftSideSabers = controllers[1]?.GetComponentsInChildren<SetSaberGlowColor>();
-            rightSideSabers = controllers[0]?.GetComponentsInChildren<SetSaberGlowColor>();
+            playerColorSchemesSettings = dataModel.playerData.colorSchemesSettings;
+            Patches.ShouldSaberColorsBeUpdated += this.RefreshData;
         }
 
         public void RefreshData(MenuEnvironmentManager.MenuEnvironmentType menuEnvironmentType)
         {
-            if (menuEnvironmentType != MenuEnvironmentManager.MenuEnvironmentType.None)
-                this.GetSabers();
+            if (menuEnvironmentType == MenuEnvironmentManager.MenuEnvironmentType.None) return;
 
             try
             {
-                colorSchemeDictionary = dictionaryAccessor(ref playerColorSchemesSettings);
+                List<VRController> controllers = Resources.FindObjectsOfTypeAll<VRController>().ToList();
+                if (controllers.Count > 0)
+                {
+                    leftSideSabers.Clear();
+                    rightSideSabers.Clear();
+
+                    foreach (SetSaberGlowColor saber1 in controllers[1].GetComponentsInChildren<SetSaberGlowColor>(true))
+                        leftSideSabers.Add(saber1);
+
+                    foreach (SetSaberGlowColor saber2 in controllers[0].GetComponentsInChildren<SetSaberGlowColor>(true))
+                        rightSideSabers.Add(saber2);
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.Logger.Debug("MenuSaberColorManager/dictionaryAccessor - Caught NRE");
-                colorSchemeDictionary = playerColorSchemesSettings.GetField<Dictionary<string, ColorScheme>, ColorSchemesSettings>("_colorSchemesDict");
+                Logger.Error("Error occured while trying to update saber colors.\n" + ex);
+                return;
             }
 
-            key = playerColorSchemesSettings.selectedColorSchemeId;
-
-            if (!Plugin.isAprilFools)
-                UpdateSaberColors();
+            this.UpdateSaberColors();
         }
 
         private void UpdateSaberColors()
         {
-            ColorScheme colorScheme = playerColorSchemesSettings.overrideDefaultColors ? colorSchemeDictionary[key] : colorSchemeDictionary["TheFirst"];
+            if (Plugin.IsAprilFools) return;
+
+            ColorScheme colorScheme = playerColorSchemesSettings.overrideDefaultColors ? playerColorSchemesSettings.GetSelectedColorScheme() : playerColorSchemesSettings.GetColorSchemeForId("TheFirst");
 
             foreach (SetSaberGlowColor obj in leftSideSabers)
             {
@@ -179,7 +171,7 @@ namespace MenuSaberColors
             pointerMaterial = pointers[1].GetComponent<MeshRenderer>().material;
             pointers[0].GetComponent<MeshRenderer>().material = pointerMaterial;
 
-            StartCoroutine(WaitForColorManager());
+            base.StartCoroutine(this.WaitForColorManager());
         }
 
         private IEnumerator WaitForColorManager()

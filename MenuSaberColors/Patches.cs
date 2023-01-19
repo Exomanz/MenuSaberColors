@@ -3,48 +3,36 @@ using System;
 
 namespace MenuSaberColors
 {
-    internal class Patches
+    internal class Patches : IAffinity
     {
-        public class HandleDidSelectCellWithIdx : IAffinity
+        public static event Action<MenuEnvironmentManager.MenuEnvironmentType> ShouldSaberColorsBeUpdated = delegate { };
+
+        [AffinityPostfix]
+        [AffinityPatch(typeof(ColorsOverrideSettingsPanelController), nameof(ColorsOverrideSettingsPanelController.HandleDropDownDidSelectCellWithIdx), AffinityMethodType.Normal)]
+        internal void DropdownWithIdxPostfix()
         {
-            [AffinityPostfix]
-            [AffinityPatch(typeof(ColorsOverrideSettingsPanelController), "HandleDropDownDidSelectCellWithIdx", AffinityMethodType.Normal)]
-            internal void Postfix()
-            {
-                MenuSaberColorManager.Instance?.RefreshData(MenuEnvironmentManager.MenuEnvironmentType.Default);
-            }
+            ShouldSaberColorsBeUpdated(MenuEnvironmentManager.MenuEnvironmentType.Default);
         }
 
-        public class HandleEditColorSchemeControllerDidFinish : IAffinity
+        [AffinityPostfix]
+        [AffinityPatch(typeof(ColorsOverrideSettingsPanelController), nameof(ColorsOverrideSettingsPanelController.HandleEditColorSchemeControllerDidFinish), AffinityMethodType.Normal)]
+        internal void EditPanelDidFinishPostfix()
         {
-            [AffinityPostfix]
-            [AffinityPatch(typeof(ColorsOverrideSettingsPanelController), "HandleEditColorSchemeControllerDidFinish", AffinityMethodType.Normal)]
-            internal void Postfix()
-            {
-                MenuSaberColorManager.Instance?.RefreshData(MenuEnvironmentManager.MenuEnvironmentType.Default);
-            }
+            ShouldSaberColorsBeUpdated(MenuEnvironmentManager.MenuEnvironmentType.Default);
         }
 
-        public class ToggleValueChanged : IAffinity
+        [AffinityPostfix]
+        [AffinityPatch(typeof(ColorsOverrideSettingsPanelController), nameof(ColorsOverrideSettingsPanelController.HandleOverrideColorsToggleValueChanged), AffinityMethodType.Normal)]
+        internal void ToggleValueChangedPostfix()
         {
-            [AffinityPostfix]
-            [AffinityPatch(typeof(ColorsOverrideSettingsPanelController), "HandleOverrideColorsToggleValueChanged", AffinityMethodType.Normal)]
-            internal void Postfix()
-            {
-                MenuSaberColorManager.Instance?.RefreshData(MenuEnvironmentManager.MenuEnvironmentType.Default);
-            }
+            ShouldSaberColorsBeUpdated(MenuEnvironmentManager.MenuEnvironmentType.Default);
         }
 
-        public class HookMenuEnvironmentManager : IAffinity
+        [AffinityPostfix]
+        [AffinityPatch(typeof(MenuEnvironmentManager), nameof(MenuEnvironmentManager.ShowEnvironmentType), AffinityMethodType.Normal)]
+        internal void ShowEnvironmentTypePostfix(ref MenuEnvironmentManager.MenuEnvironmentType menuEnvironmentType)
         {
-            public event Action<MenuEnvironmentManager.MenuEnvironmentType> menuEnvironmentDidChangeEvent = delegate { };
-
-            [AffinityPostfix]
-            [AffinityPatch(typeof(MenuEnvironmentManager), "ShowEnvironmentType", AffinityMethodType.Normal)]
-            internal void Postfix(ref MenuEnvironmentManager.MenuEnvironmentType menuEnvironmentType)
-            {
-                menuEnvironmentDidChangeEvent.Invoke(menuEnvironmentType);
-            }
+            ShouldSaberColorsBeUpdated(menuEnvironmentType);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace MenuSaberColors
 {
     public class MenuSaberColorManager : MonoBehaviour
     {
-        [Inject] private readonly SiraLog Logger;
+        private SiraLog logger = null!;
 
         public MethodInfo setColorsMethod = typeof(SetSaberGlowColor).GetMethod("SetColors");
         public List<SetSaberGlowColor> leftSideSabers = new List<SetSaberGlowColor>();
@@ -22,8 +22,9 @@ namespace MenuSaberColors
         private ColorSchemesSettings playerColorSchemesSettings;
 
         [Inject]
-        internal void Construct(PlayerDataModel dataModel)
+        internal void Construct(PlayerDataModel dataModel, SiraLog logger)
         {
+            this.logger = logger;
             playerColorSchemesSettings = dataModel.playerData.colorSchemesSettings;
             Patches.ShouldSaberColorsBeUpdated += this.RefreshData;
         }
@@ -49,7 +50,7 @@ namespace MenuSaberColors
             }
             catch (Exception ex)
             {
-                Logger.Error("Error occured while trying to update saber colors.\n" + ex);
+                logger.Error("Error occured while refreshing saber data.\n" + ex);
                 return;
             }
 
@@ -155,9 +156,9 @@ namespace MenuSaberColors
                 return new Color(Mathf.Clamp01(r), Mathf.Clamp01(g), Mathf.Clamp01(b), hsbColor.a);
             }
         }
-
+#pragma warning disable CS0649
         [Inject] private readonly MenuSaberColorManager colorManager;
-
+#pragma warning restore CS0649
         private readonly FieldAccessor<ColorScheme, Color>.Accessor saberAColorAccessor = FieldAccessor<ColorScheme, Color>.GetAccessor("_saberAColor");
         private readonly FieldAccessor<ColorScheme, Color>.Accessor saberBColorAccessor = FieldAccessor<ColorScheme, Color>.GetAccessor("_saberBColor");
         private ColorScheme aprilFools = new ColorScheme("memory-only_menuSaberColors_aprilFoolsColorScheme", "LOL", useNonLocalizedName: false, "OWNED", isEditable: false, new Color(0f, 0f, 0f), new Color(0f, 0f, 0f), new Color(0f, 0f, 0f), new Color(0f, 0f, 0f), supportsEnvironmentColorBoost: false, new Color(0f, 0f, 0f), new Color(0f, 0f, 0f), new Color(0f, 0f, 0f));

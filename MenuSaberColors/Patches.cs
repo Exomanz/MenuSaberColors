@@ -32,6 +32,9 @@ namespace MenuSaberColors
         [AffinityPatch(typeof(MenuEnvironmentManager), nameof(MenuEnvironmentManager.ShowEnvironmentType), AffinityMethodType.Normal)]
         internal void ShowEnvironmentTypePostfix(ref MenuEnvironmentManager.MenuEnvironmentType menuEnvironmentType)
         {
+            if (menuEnvironmentType == MenuEnvironmentManager.MenuEnvironmentType.Lobby)
+                return;
+
             ShouldSaberColorsBeUpdated(menuEnvironmentType);
         }
     }

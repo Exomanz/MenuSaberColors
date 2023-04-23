@@ -32,7 +32,7 @@ namespace MenuSaberColors
             zenjector.Install<ColorManagerInstaller>(Container =>
             {
                 GameObject saberColorManagerGO;
-                bool doesObjectExist = GameObject.Find("MenuSaberColorManager") != null;
+                bool doesObjectExist = GameObject.Find("MenuSaberColorManager") != null!;
 
                 if (doesObjectExist) return;
                 else saberColorManagerGO = new GameObject("MenuSaberColorManager");

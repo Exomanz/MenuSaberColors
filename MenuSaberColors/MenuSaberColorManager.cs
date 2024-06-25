@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 using VRUIControls;
 using Zenject;
@@ -15,7 +14,6 @@ namespace MenuSaberColors
     {
         private SiraLog logger = null!;
 
-        public MethodInfo setColorsMethod = typeof(SetSaberGlowColor).GetMethod("SetColors");
         public List<SetSaberGlowColor> leftSideSabers = new List<SetSaberGlowColor>();
         public List<SetSaberGlowColor> rightSideSabers = new List<SetSaberGlowColor>();
 
@@ -65,16 +63,16 @@ namespace MenuSaberColors
 
             foreach (SetSaberGlowColor obj in leftSideSabers)
             {
-                ColorManager colorManager = obj?.GetField<ColorManager, SetSaberGlowColor>("_colorManager");
-                colorManager?.SetField("_colorScheme", colorScheme);
-                setColorsMethod?.Invoke(obj, null);
+                ColorManager colorManager = obj._colorManager;
+                colorManager.SetColorScheme(colorScheme);
+                obj.SetColors();
             }
 
             foreach (SetSaberGlowColor obj in rightSideSabers)
             {
-                ColorManager colorManager = obj?.GetField<ColorManager, SetSaberGlowColor>("_colorManager");
-                colorManager?.SetField("_colorScheme", colorScheme);
-                setColorsMethod?.Invoke(obj, null);
+                ColorManager colorManager = obj._colorManager;
+                colorManager.SetColorScheme(colorScheme);
+                obj.SetColors();
             }
         }
     }
@@ -158,9 +156,7 @@ namespace MenuSaberColors
         }
 
         [Inject] private readonly MenuSaberColorManager colorManager;
-        private readonly FieldAccessor<ColorScheme, Color>.Accessor saberAColorAccessor = FieldAccessor<ColorScheme, Color>.GetAccessor("_saberAColor");
-        private readonly FieldAccessor<ColorScheme, Color>.Accessor saberBColorAccessor = FieldAccessor<ColorScheme, Color>.GetAccessor("_saberBColor");
-        private ColorScheme aprilFools = new(
+        private readonly ColorScheme aprilFools = new(
             colorSchemeId: "memory-only_menuSaberColors_aprilFoolsColorScheme",
             colorSchemeNameLocalizationKey: "LOL",
             useNonLocalizedName: false,
@@ -207,18 +203,22 @@ namespace MenuSaberColors
             {
                 Color rainbow = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.5f, 1f), 1f, 1f));
 
-                saberAColorAccessor(ref aprilFools) = rainbow;
-                saberBColorAccessor(ref aprilFools) = rainbow;
+                aprilFools._saberAColor = rainbow;
+                aprilFools._saberBColor = rainbow;
                 pointerMaterial.color = rainbow;
 
                 foreach (SetSaberGlowColor obj in colorManager.leftSideSabers)
                 {
-                    colorManager.setColorsMethod?.Invoke(obj, null);
+                    ColorManager colorManager = obj._colorManager;
+                    colorManager.SetColorScheme(aprilFools);
+                    obj.SetColors();
                 }
 
                 foreach (SetSaberGlowColor obj in colorManager.rightSideSabers)
                 {
-                    colorManager.setColorsMethod?.Invoke(obj, null);
+                    ColorManager colorManager = obj._colorManager;
+                    colorManager.SetColorScheme(aprilFools);
+                    obj.SetColors();
                 }
             }
         }

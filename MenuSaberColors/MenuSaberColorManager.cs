@@ -160,7 +160,22 @@ namespace MenuSaberColors
         [Inject] private readonly MenuSaberColorManager colorManager;
         private readonly FieldAccessor<ColorScheme, Color>.Accessor saberAColorAccessor = FieldAccessor<ColorScheme, Color>.GetAccessor("_saberAColor");
         private readonly FieldAccessor<ColorScheme, Color>.Accessor saberBColorAccessor = FieldAccessor<ColorScheme, Color>.GetAccessor("_saberBColor");
-        private ColorScheme aprilFools = new ColorScheme("memory-only_menuSaberColors_aprilFoolsColorScheme", "LOL", useNonLocalizedName: false, "OWNED", isEditable: false, new Color(0f, 0f, 0f), new Color(0f, 0f, 0f), new Color(0f, 0f, 0f), new Color(0f, 0f, 0f), supportsEnvironmentColorBoost: false, new Color(0f, 0f, 0f), new Color(0f, 0f, 0f), new Color(0f, 0f, 0f));
+        private ColorScheme aprilFools = new(
+            colorSchemeId: "memory-only_menuSaberColors_aprilFoolsColorScheme",
+            colorSchemeNameLocalizationKey: "LOL",
+            useNonLocalizedName: false,
+            nonLocalizedName: "OWNED",
+            isEditable: false, 
+            saberAColor: Color.black,
+            saberBColor: Color.black,
+            environmentColor0: Color.black,
+            environmentColor1: Color.black,
+            environmentColorW: Color.black,
+            supportsEnvironmentColorBoost: false,
+            environmentColor0Boost: Color.black,
+            environmentColor1Boost: Color.black,
+            environmentColorWBoost: Color.black,
+            obstaclesColor: Color.black);
         private Material pointerMaterial;
         private bool ready;
 

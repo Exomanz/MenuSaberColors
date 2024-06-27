@@ -1,4 +1,8 @@
-# MenuSaberColors
+# :warning: ✖️ THIS MOD IS NO LONGER MAINTAINED BY ME ✖️ :warning:
+Due to a general lack of motivation, this mod is no longer going to be maintained by myself post-Beat Saber 1.31.0.
+All new updates will be published by [@qqrz997](https://github.com/qqrz997/MenuSaberColors).
+
+# MenuSaberColors for Beat Saber 1.31.0
 A Quest mod that allowed for your menu pointers to be the same colors as your sabers has been ported to PC!
 
 ## Overview - What exactly does this mod do?
